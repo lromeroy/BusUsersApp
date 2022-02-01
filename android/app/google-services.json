@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "1083927247861",
+    "firebase_url": "https://drivertaxiapp-126f4-default-rtdb.firebaseio.com",
+    "project_id": "drivertaxiapp-126f4",
+    "storage_bucket": "drivertaxiapp-126f4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1083927247861:android:96a9cd3ea3ae1bfe757ebc",
+        "android_client_info": {
+          "package_name": "com.arkanotech.the_bus_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1083927247861-5dqmngds5va0rnmpl8o5be819cuup5rm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIGXs5ywyTT6QLzgtumXJfh5xoVPSJLfQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1083927247861-5dqmngds5va0rnmpl8o5be819cuup5rm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1083927247861:android:a1786cbe7b978645757ebc",
+        "android_client_info": {
+          "package_name": "com.arkanotech.users_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1083927247861-5dqmngds5va0rnmpl8o5be819cuup5rm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIGXs5ywyTT6QLzgtumXJfh5xoVPSJLfQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1083927247861-5dqmngds5va0rnmpl8o5be819cuup5rm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
