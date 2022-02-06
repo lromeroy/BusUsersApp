@@ -1,54 +1,90 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:users_app/authentication/signup_screen.dart';
+import 'package:users_app/global/global.dart';
+import 'package:users_app/splashScreen/splash_screen.dart';
+import 'package:users_app/widgets/progress_dialog.dart';
 
-import '../global/global.dart';
-import '../splashScreen/splash_screen.dart';
-import '../widgets/progress_dialog.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class LoginScreen extends StatefulWidget
+{
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+
+
+
+class _LoginScreenState extends State<LoginScreen>
+{
   TextEditingController emailTextEditingController = TextEditingController();
   TextEditingController passwordTextEditingController = TextEditingController();
 
-  validateForm() {
-    if (!emailTextEditingController.text.contains("@")) {
-      Fluttertoast.showToast(msg: "Email address is not valid");
-    } else if (passwordTextEditingController.text.isEmpty) {
-      Fluttertoast.showToast(msg: "password is required.");
-    } else {
-      loginUserInfoNow();
+
+  validateForm()
+  {
+    if(!emailTextEditingController.text.contains("@"))
+    {
+      Fluttertoast.showToast(msg: "Email address is not Valid.");
+    }
+    else if(passwordTextEditingController.text.isEmpty)
+    {
+      Fluttertoast.showToast(msg: "Password is required.");
+    }
+    else
+    {
+      loginUserNow();
     }
   }
 
-  loginUserInfoNow() async {
+  loginUserNow() async
+  {
     showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (BuildContext c) {
-          return ProgressDialog(message: "Loading...");
-        });
+        builder: (BuildContext c)
+        {
+          return ProgressDialog(message: "Processing, Please wait...",);
+        }
+    );
 
-    final User? firebaseUser = (await fAuth.signInWithEmailAndPassword(
-            email: emailTextEditingController.text.trim(),
-            password: passwordTextEditingController.text.trim()))
-        .user;
+    final User? firebaseUser = (
+        await fAuth.signInWithEmailAndPassword(
+          email: emailTextEditingController.text.trim(),
+          password: passwordTextEditingController.text.trim(),
+        ).catchError((msg){
+          Navigator.pop(context);
+          Fluttertoast.showToast(msg: "Error: " + msg.toString());
+        })
+    ).user;
 
-    if (firebaseUser != null) {
-      currentFirebaseUser = firebaseUser;
-      Fluttertoast.showToast(msg: "Login successful");
-      Navigator.push(
-          context, MaterialPageRoute(builder: (c) => const MySplashScreen()));
-    } else {
+    if(firebaseUser != null)
+    {
+      DatabaseReference driversRef = FirebaseDatabase.instance.ref().child("users");
+      driversRef.child(firebaseUser.uid).once().then((driverKey)
+      {
+        final snap = driverKey.snapshot;
+        if(snap.value != null)
+        {
+          currentFirebaseUser = firebaseUser;
+          Fluttertoast.showToast(msg: "Login Successful.");
+          Navigator.push(context, MaterialPageRoute(builder: (c)=> const MySplashScreen()));
+        }
+        else
+        {
+          Fluttertoast.showToast(msg: "No record exist with this email.");
+          fAuth.signOut();
+          Navigator.push(context, MaterialPageRoute(builder: (c)=> const MySplashScreen()));
+        }
+      });
+    }
+    else
+    {
       Navigator.pop(context);
-      Fluttertoast.showToast(msg: "Error ocurring during Login");
+      Fluttertoast.showToast(msg: "Error Occurred during Login.");
     }
   }
 
@@ -57,76 +93,116 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
-          child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            const SizedBox(height: 30),
-            const Padding(
-                padding: EdgeInsets.all(20.0),
-                child: Text(
-                  "////////////////////////////////////////////////////////////////////////////////////////"
-                  "///////////////////////////////////////////////////////////////////////////",
-                  style: TextStyle(color: Colors.white),
-                )),
-            const Text(
-              "Login",
-              style: TextStyle(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+
+              const SizedBox(height: 30,),
+
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Image.asset("images/logo.png"),
+              ),
+
+              const SizedBox(height: 10,),
+
+              const Text(
+                "Login as a User",
+                style: TextStyle(
                   fontSize: 26,
                   color: Colors.grey,
-                  fontWeight: FontWeight.bold),
-            ),
-            TextField(
-              controller: emailTextEditingController,
-              style: const TextStyle(color: Colors.grey),
-              decoration: const InputDecoration(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              TextField(
+                controller: emailTextEditingController,
+                keyboardType: TextInputType.emailAddress,
+                style: const TextStyle(
+                    color: Colors.grey
+                ),
+                decoration: const InputDecoration(
                   labelText: "Email",
                   hintText: "Email",
                   enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey)),
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
                   focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey)),
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 10),
-                  labelStyle: TextStyle(color: Colors.grey, fontSize: 14)),
-            ),
-            TextField(
-              keyboardType: TextInputType.text,
-              obscureText: true,
-              controller: passwordTextEditingController,
-              style: const TextStyle(color: Colors.grey),
-              decoration: const InputDecoration(
-                labelText: "Password",
-                hintText: "Password",
-                enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey)),
-                focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey)),
-                hintStyle: TextStyle(color: Colors.grey, fontSize: 10),
-                labelStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  hintStyle: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 10,
+                  ),
+                  labelStyle: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: () {
-                validateForm();
-              },
-              style: ElevatedButton.styleFrom(
-                primary: Colors.lightGreenAccent,
+
+              TextField(
+                controller: passwordTextEditingController,
+                keyboardType: TextInputType.text,
+                obscureText: true,
+                style: const TextStyle(
+                    color: Colors.grey
+                ),
+                decoration: const InputDecoration(
+                  labelText: "Password",
+                  hintText: "Password",
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  hintStyle: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 10,
+                  ),
+                  labelStyle: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
+                ),
               ),
-              child: const Text(
-                "Login",
-                style: TextStyle(color: Colors.black54, fontSize: 18),
-              ),
-            ),
-            TextButton(
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (c) => const SignUpScreen()));
+
+              const SizedBox(height: 20,),
+
+              ElevatedButton(
+                onPressed: ()
+                {
+                  validateForm();
                 },
-                child: Text("Register"))
-          ],
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.lightGreenAccent,
+                ),
+                child: const Text(
+                  "Login",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+
+              TextButton(
+                child: const Text(
+                  "Do not have an Account? SignUp Here",
+                  style: TextStyle(color: Colors.grey),
+                ),
+                onPressed: ()
+                {
+                  Navigator.push(context, MaterialPageRoute(builder: (c)=> SignUpScreen()));
+                },
+              ),
+
+            ],
+          ),
         ),
-      )),
+      ),
     );
   }
 }
